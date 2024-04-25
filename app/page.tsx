@@ -1,8 +1,13 @@
-import { createClient } from '@/utils/supabase/server'
+import React from 'react'
 
-export default async function Page() {
-  const supabase = createClient()
-  const { data: todos } = await supabase.from('todos').select()
+import { InputDemo } from '@/components/inputdemo'
 
-  return <pre>{JSON.stringify(todos, null, 2)}</pre>
+function page() {
+  return (
+    <div className="flex flex-column items-center justify-center">
+      <InputDemo />
+    </div>
+  )
 }
+
+export default page
