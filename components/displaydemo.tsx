@@ -1,3 +1,6 @@
+"use client"
+
+import React, { useEffect, useState } from 'react';
 import { Pencil } from 'lucide-react';
 import { Trash } from 'lucide-react';
 import {
@@ -22,17 +25,36 @@ import {
   } from "@/components/ui/dialog"
 
 import { Input } from './ui/input';
-
-const invoices = [
-  {
-    invoice: "INV001",
-    paymentStatus: "Paid",
-    paymentMethod: "Credit Card",
-  }
-  // More invoice data...
-];
+import { createClient } from "@/utils/supabase/client";
 
 export function DisplayDemo() {
+
+  const [todos, setTodos] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Function to fetch data from Supabase
+    const fetchTodos = async () => {
+      try {
+
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from('todos')
+          .select('*');
+
+        if (error) {
+          throw error;
+        }
+
+        setTodos(data);
+      } catch (error) {
+        console.error("Error fetching todos");
+      }
+    };
+
+    // Call the fetchTodos function when the component mounts
+    fetchTodos();
+  }, []); // Empty dependency array to run the effect only once
+
   return (
     <Table>
       <TableCaption>A list of your tasks.</TableCaption>
@@ -45,35 +67,35 @@ export function DisplayDemo() {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {invoices.map((invoice) => (
-          <TableRow key={invoice.invoice}>
-            <TableCell className="font-medium">{invoice.invoice}</TableCell>
-            <TableCell>{invoice.paymentStatus}</TableCell>
-            <TableCell>{invoice.paymentMethod}</TableCell>
+        {todos.map((todo) => (
+          <TableRow key={todo.id}>
+            <TableCell className="font-medium">{todo.id}</TableCell>
+            <TableCell>{todo.is_complete ? "Yes" : "No"}</TableCell>
+            <TableCell>{todo.task}</TableCell>
             <TableCell className="flex">
-                <div className="flex ml-auto">
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button className="mr-1 p-0.5 px-3">
-                                <Pencil className=" w-4 h-4"/>
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Edit Task</DialogTitle>
-                            </DialogHeader>
-                            <DialogDescription>
-                                <Input className="mr-1" />
-                            </DialogDescription>
-                            <DialogFooter>
-                                <Button variant="outline">Save</Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-                    <Button className="p-0.5 px-3">
-                        <Trash className=" w-4 h-4 "/>
+              <div className="flex ml-auto">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button className="mr-1 p-0.5 px-3">
+                      <Pencil className=" w-4 h-4" />
                     </Button>
-                </div>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Edit Task</DialogTitle>
+                    </DialogHeader>
+                    <DialogDescription>
+                      <Input className="mr-1" />
+                    </DialogDescription>
+                    <DialogFooter>
+                      <Button variant="outline">Save</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+                <Button className="p-0.5 px-3">
+                  <Trash className=" w-4 h-4 " />
+                </Button>
+              </div>
             </TableCell>
           </TableRow>
         ))}
