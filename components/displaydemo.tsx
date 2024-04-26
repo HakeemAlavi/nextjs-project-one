@@ -22,6 +22,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
+    DialogClose,
   } from "@/components/ui/dialog"
 
 import { Input } from './ui/input';
@@ -54,6 +55,29 @@ export function DisplayDemo() {
     // Call the fetchTodos function when the component mounts
     fetchTodos();
   }, []); // Empty dependency array to run the effect only once
+
+  const handleUpdateTodo = async (id: number, updatedTask: string) => {
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from('todos')
+        .update({ task: updatedTask })
+        .eq('id', id);
+
+      if (error) {
+        throw error;
+      }
+
+      // Update todos state after updating the task
+      setTodos(prevTodos =>
+        prevTodos.map(todo =>
+          todo.id === id ? { ...todo, task: updatedTask } : todo
+        )
+      );
+    } catch (error) {
+      console.error("Error updating todo");
+    }
+  };
 
   const handleDeleteTodo = async (id: number) => {
     try {
@@ -93,10 +117,10 @@ export function DisplayDemo() {
             <TableCell>{todo.task}</TableCell>
             <TableCell className="flex">
               <div className="flex ml-auto">
-                <Dialog>
+              <Dialog>
                   <DialogTrigger asChild>
                     <Button className="mr-1 p-0.5 px-3">
-                      <Pencil className=" w-4 h-4" />
+                      <Pencil className="w-4 h-4" />
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
@@ -104,10 +128,19 @@ export function DisplayDemo() {
                       <DialogTitle>Edit Task</DialogTitle>
                     </DialogHeader>
                     <DialogDescription>
-                      <Input className="mr-1" />
+                      <Input
+                        className="mr-1"
+                        defaultValue={todo.task}
+                        onChange={(e) => {
+                          const updatedTask = e.target.value;
+                          handleUpdateTodo(todo.id, updatedTask);
+                        }}
+                      />
                     </DialogDescription>
                     <DialogFooter>
+                    <DialogClose asChild>
                       <Button variant="outline">Save</Button>
+                    </DialogClose>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
