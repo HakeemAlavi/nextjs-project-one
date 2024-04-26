@@ -55,6 +55,25 @@ export function DisplayDemo() {
     fetchTodos();
   }, []); // Empty dependency array to run the effect only once
 
+  const handleDeleteTodo = async (id: number) => {
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from('todos')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        throw error;
+      }
+
+      // Update todos state after deletion
+      setTodos((prevTodos) => prevTodos.filter(todo => todo.id !== id));
+    } catch (error) {
+      console.error("Error deleting todo");
+    }
+  };
+
   return (
     <Table>
       <TableCaption>A list of your tasks.</TableCaption>
@@ -92,7 +111,7 @@ export function DisplayDemo() {
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
-                <Button className="p-0.5 px-3">
+                <Button className="p-0.5 px-3" onClick={() => handleDeleteTodo(todo.id)}>
                   <Trash className=" w-4 h-4 " />
                 </Button>
               </div>
