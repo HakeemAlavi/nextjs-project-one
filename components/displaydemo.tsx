@@ -27,10 +27,11 @@ import {
 
 import { Input } from './ui/input';
 import { createClient } from "@/utils/supabase/client";
+import { useTodos } from './todosprovider';
 
 export function DisplayDemo() {
 
-  const [todos, setTodos] = useState<any[]>([]);
+  const { todos, setTodos } = useTodos();
 
   useEffect(() => {
     // Function to fetch data from Supabase

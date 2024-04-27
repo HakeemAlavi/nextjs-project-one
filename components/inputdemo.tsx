@@ -4,9 +4,12 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createClient } from "@/utils/supabase/client";
+import { useTodos } from './todosprovider';
 
 export function InputDemo() {
   const [taskInput, setTaskInput] = useState("");
+
+  const { setTodos } = useTodos();
 
   // Function to handle form submission
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -29,6 +32,8 @@ export function InputDemo() {
 
         // Log the result
         console.log("Task created:", data[0].task);
+        
+        setTodos((prevTodos: any[]) => [...prevTodos, data[0]]); // Update the todos state with the new task
 
         // Clear the input field after submitting
         setTaskInput("");
